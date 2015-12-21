@@ -2,15 +2,15 @@ var Post;
 
 
 var task = {
-    name : "",
-    id   : ""
+    taskname : "",
+    taskid   : ""
 }
 
 $( document ).ready(function() {
     console.log( "ready!" );
     Parse.initialize("tk0fyyUtmDo4XixZlBB8lasknm0DQKGKkYsoSU3N", "S6MKatlAaMBo1peSThLpuTNeiCmXaeJjoKD3M8NN");
     Post = Parse.Object.extend("Post");
-   // win();
+    win();
 });
 
 
@@ -18,16 +18,24 @@ $( document ).ready(function() {
 $("#addButton").click(function() {
 
 
-
+    $("#spinner").show();
     var newPost = new Post();
     newPost.set("task",($("#inputName").val()));
     newPost.save(null, {
         success: function(newPost) {
             console.log("task created!: " + newPost.id)
-            var newtask = task;
-            newtask.id = newPost.id;
-            newtask.name = $("#inputName").val();
-            
+
+            //clear all tasks ul and query parse to get the new list, and show the tasks in decsending order
+            $("#taskName").empty();
+            win(function(){
+                //callback, when win method is finished
+                console.log("hidden");
+                $("#spinner").hide();
+            });
+
+
+
+
         },
         error: function(newPost, error) {
             // Execute any logic that should take place if the save fails.
@@ -36,7 +44,7 @@ $("#addButton").click(function() {
         }
     });
     console.log("button clicked");
-    win();
+
 
 
 });
@@ -46,40 +54,63 @@ $("#addButton").click(function() {
 
 
 
-function win()
-{   console.log("shahruk");
- var query = new Parse.Query(Post);
+function win(callback)
 
- console.log($("#inputName").val());
- var tasks = $('#taskName');
- query.find({
-     success: function(results){
-         for(var i in results){
-             var title = results[i].get("task");
-             console.log(results[i].id);
-             tasks.append('<li> '+title+' <label  class = "pull-right"> <input  type="checkbox" class = "checkBox" name="terms" style="margin: 0 4px 0 4px;"/></label><button type="button" class="btn btn-danger btn-xs delButton pull-right" id= "let" ><i class="fa fa-trash-o"></i></button>&nbsp;&nbsp;&nbsp;');
-         }
-     }
- });
+
+{  
+    console.log("shahruk");
+    var query = new Parse.Query(Post);
+
+    console.log($("#inputName").val());
+    var tasks = $('#taskName');
+    query.find({
+        success: function(results){
+            for(var i=results.length-1; i>=0; i--){
+                var title = results[i].get("task");
+                console.log(JSON.stringify(results[i],null,2));
+                var id = results[i].id; 
+                //console.log(id); 
+                tasks.append('<li> '+title+'<label  class = "pull-right"> <input  type="checkbox" class = "checkBox" name="terms" style="margin: 0 4px 0 4px;"/></label><button type="button" class="btn btn-danger btn-xs delButton pull-right" id= "let" ><i class="fa fa-trash-o"></i></button>&nbsp;&nbsp;&nbsp;<span style= "display:none">' + id +'</span>');
+            }
+            if(callback){
+                callback();
+            }
+        }
+    });
 
 }
 
-$(".delButton").live("click", function(){
-    console.log("delete");
+$(document).on('click','.delButton', function(){
+    $("#spinner").show();
+    // console.log("delete");
     var Post = Parse.Object.extend("Post");
     var query = new Parse.Query(Post);
-    console.log($(this).parent().text());
-    var tobedeleted= $(this).parent().text();
-    console.log(tobedeleted);
-    var x= query.get(tobedeleted,{
-        success: function(yourObj){
-            yourObj.destroy({});
+    var id= $(this).siblings("span").html();
+    console.log(id);
+
+    query.get(id,{
+
+        success:function(task){
+            task.destroy({
+                success: function(myObject) {
+                    $("#taskName").empty();
+                    win(function(){
+                        //callback, when win method is finished
+                        console.log("hidden");
+                        $("#spinner").hide();
+                    });
+                },
+                error: function(myObject, error) {
+                    // The delete failed.
+                    // error is a Parse.Error with an error code and message.
+                }
+
+            });
         },
+        error:function(object,error){
 
-
-
-    });
-
+        }
+    })
 
 });
 
@@ -95,4 +126,3 @@ $('.checkBox').change(function(){
 
     }
 });
-
