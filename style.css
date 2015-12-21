@@ -1,0 +1,40 @@
+body{
+    background: #333333;
+    color: white;
+}
+
+.row-centered {
+    text-align:center;
+}
+.col-centered {
+    display:inline-block;
+    float:none;
+    /* reset the text-align */
+    text-align:left;
+    /* inline-block space fix */
+    margin-right:-4px;
+}
+
+#tasks{
+    background: rgb(245, 245, 245);
+    color: black; 
+}
+
+li{
+    border-bottom: thin solid #aaaaaa;
+    padding: 10px;
+}
+
+#taskAdd {
+background-color: #1c97ce
+ 
+}
+
+.center_div{
+    margin: 0 auto;
+    width:30% /* value of your choice which suits your alignment */
+}
+
+.completed {
+    text-decoration: line-through;
+}
